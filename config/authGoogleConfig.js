@@ -8,7 +8,7 @@ const strategy = new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     //callbackURL: "http://localhost:3001/auth/google/redirect"
-    callbackURL: "https://cizishop-backend2334.herokuapp.com/auth/google/redirect"
+    callbackURL: "https://backend-emqvf.ondigitalocean.app/auth/google/redirect"
 }, async (accessToken, refreshToken, profile, cb) => {
     let user = await User.findOne({ googleId: profile.id, email: profile._json.email });
     if (user) {
