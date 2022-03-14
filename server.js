@@ -20,7 +20,7 @@ const app = express()
 
 const corsOptions ={
     origin:'*',
-    credentials:true,            //access-control-allow-credentials:true
+    credentials:false,            //access-control-allow-credentials:true
     optionSuccessStatus:200,
 }
 
@@ -37,7 +37,9 @@ app.use('/media/img/',express.static('media/img'));
 // parse request to body-parser
 app.use(bodyparser.urlencoded({ extended : true}))
 
-
+app.get('/', (req, res) => {
+    res.send('hello world')
+})
 app.use('/admin', require('./routes/auth'));
 app.use("/admin", require("./routes/private"));
 app.use("/admin/user", require("./routes/user"));
