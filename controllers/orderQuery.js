@@ -60,7 +60,7 @@ module.exports.adminOrderQuery = async (req, res) => {
 
     for (const admin of allAdmin) {
         for (const item of orders) {
-            if (item.handOverAdmin.equals(admin._id)) {
+            if (item?.handOverAdmin?.equals(admin._id)) {
                 totalOrder = totalOrder + 1
                
                 let orderYear = parseInt(moment(item.createdAt).format('YYYY'));
