@@ -179,7 +179,7 @@ module.exports.sendTokenOauth = (user, statusCode, res) => {
     jwtToken = token;
 
     //res.redirect(302, 'http://localhost:3000/login');
-    res.redirect(302, 'https://test.bdsell.net/login');
+    res.redirect(302, 'https://client-4x8r4.ondigitalocean.app/login');
     //res.redirect(302, 'https://sizishop.xiphersoft.com/login');
 
 };

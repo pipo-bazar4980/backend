@@ -40,13 +40,14 @@ app.use(bodyparser.urlencoded({ extended : true}))
 app.get('/', (req, res) => {
     res.send('hello world')
 })
+
 app.use('/admin', require('./routes/auth'));
 app.use("/admin", require("./routes/private"));
 app.use("/admin/user", require("./routes/user"));
 app.use("/admin/product", require("./routes/products"));
 app.use("/admin", require("./routes/logout"));
 app.use("/auth/google",require("./routes/authGoogleRouter"));
-// app.use("/auth/facebook",require("./routes/authFacebookRouter"));
+app.use("/auth/facebook",require("./routes/authFacebookRouter"));
 app.use("/admin/banner", require("./routes/banner"));
 app.use("/count", require("./routes/visitors"));
 app.use('/addWallet', require("./routes/addWallet"))
