@@ -5,6 +5,7 @@ const ErrorResponse = require("../utils/errorResponse");
 const sendEmail = require("../utils/sendEmail");
 const crypto = require("crypto");
 const _ = require('lodash');
+const moment = require("moment");
 
 let jwtToken = null;
 
@@ -162,7 +163,9 @@ exports.resetPassword = async (req, res, next) => {
 
 
 const sendToken = (user, statusCode, res) => {
-    const token = user.getSignedJwtToken();
+    const exp = moment().add(process.env.JWT_EXPIRE,'days').unix()
+    console.log(exp)
+    const token = user.getSignedJwtToken(exp);
     const { password, ...info } = user._doc;
 
     res.cookie('jwt', token, {

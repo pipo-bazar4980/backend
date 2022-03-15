@@ -107,8 +107,8 @@ UserSchema.methods.matchPasswords = async function (password) {
     return await bcrypt.compare(password, this.password)
 }
 
-UserSchema.methods.getSignedJwtToken = function () {
-    return jwt.sign({ id: this._id, username: this.username, email: this.email, phonenumber: this.phonenumber, role: this.role, wallet: this.wallet }, process.env.JWT_SECRET, {
+UserSchema.methods.getSignedJwtToken = function (exp) {
+    return jwt.sign({ id: this._id, username: this.username, email: this.email, phonenumber: this.phonenumber, role: this.role, wallet: this.wallet,  flag: true }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRE,
     });
 };

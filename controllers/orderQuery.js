@@ -52,7 +52,7 @@ module.exports.adminOrderQuery = async (req, res) => {
     
     let totalOrder = 0, todayOrder = 0,array=[];
 
-    const date = new Date();
+    var date = new Date();
     const year = parseInt(moment(date).format('YYYY'))
     const month = parseInt(moment(date).format('M'))
     const day = parseInt(moment(date).format('D'))
@@ -60,10 +60,11 @@ module.exports.adminOrderQuery = async (req, res) => {
 
     for (const admin of allAdmin) {
         for (const item of orders) {
-            // console.log(item?.handOverAdmin===admin._id)
-            if (await item?.handOverAdmin===admin._id) {
-                totalOrder = totalOrder + 1
 
+            if (await item?.handOverAdmin===admin._id) {
+
+                totalOrder = totalOrder + 1
+               
                 let orderYear = parseInt(moment(item?.createdAt).format('YYYY'));
                 let orderMonth = parseInt(moment(item?.createdAt).format('M'));
                 let orderDay = parseInt(moment(item?.createdAt).format('D'));
@@ -78,7 +79,7 @@ module.exports.adminOrderQuery = async (req, res) => {
             today:todayOrder,
             total:totalOrder
         })
-
+        
     }
 
     return res.status(200).send(array)
