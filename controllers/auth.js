@@ -51,6 +51,8 @@ exports.login = async (req, res, next) => {
 
     const { email, password } = req.body;
 
+    console.log(email, password)
+
     // Check if email and password is provided
     if (!email || !password) {
         return next(new ErrorResponse("Please provide an email and password", 400));
@@ -182,7 +184,7 @@ module.exports.sendTokenOauth = (user, statusCode, res) => {
     jwtToken = token;
 
     //res.redirect(302, 'http://localhost:3000/login');
-    res.redirect(302, 'https://gwztopup.com/login');
+    res.redirect(302, 'https://client-4x8r4.ondigitalocean.app/login');
     //res.redirect(302, 'https://sizishop.xiphersoft.com/login');
 
 };
@@ -207,3 +209,43 @@ const saveInfo = async (user, statusCode, res) => {
     }
 
 }
+
+
+//new google login
+
+exports.GoogleAuth = async (req, res, next) => {
+    const profile = req.body.profileObj
+
+    let user = await User.findOne({ email: profile.email });
+    if (user){
+        if (user.googleId){
+            sendToken(user, 200, res);
+        }
+        else {
+            return res.status(400).send('This account can not be logged in by google')
+        }
+
+    }else {
+        try {
+            const userCount = await User.find()
+            const userLength = userCount.length + 1;
+            user = new User({ googleId: profile.googleId, email: profile.email, username: profile.name });
+            const wallet = await Wallet.create({
+                totalAmount: 0,
+                spentAmount: 0,
+                currentAmount: 0,
+                totalOrder: 0,
+                userId: user?._id
+            });
+            user.wallet = wallet._id
+            user.userIdNo = 100 + userLength
+            await user.save();
+            sendToken(user, 200, res);
+
+        } catch (err) {
+            next(err);
+        }
+    }
+
+
+};

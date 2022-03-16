@@ -30,7 +30,7 @@ exports.addWallet = async (req, res, next) => {
 
     const addWallet = await AddWallet.find({walletId: walletId, isComplete: false, reject: false})
 
-    if (addWallet.length != 0) {
+    if (addWallet.length !== 0) {
         return (res.status(400).send('We have one pending transaction! Please make a new transaction after your previous transaction is approved'))
     } else {
         // new wallet
@@ -253,7 +253,7 @@ module.exports.markAllPurchaseComplete = async (req, res) => {
     for (let trans of findTransactions) {
         const wallet = await Wallet.findById({_id: trans.walletId})
 
-        let currentAmount = wallet.currentAmount + trans.amount
+        let currentAmount = wallet?.currentAmount + trans.amount
         let totalAmount = currentAmount + wallet.spentAmount;
 
         await Wallet.updateOne({_id: wallet._id}, {currentAmount, totalAmount});

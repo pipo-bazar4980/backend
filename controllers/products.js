@@ -130,17 +130,22 @@ exports.remove = (req, res) => {
 exports.filterProductByDate = async (req, res) => {
 
     const order = await Order.find({ isComplete: true })
+    // console.log(order)
+    console.log(req.body)
 
     let totalOrders = 0;
     let totalIncome = 0;
 
+    let orderYear;
+    let orderMonth;
+    let orderDay;
     if (req.body.date) {
-        const { date } = req.body;
+        const {date} = req.body;
         const year = parseInt(date.split("-")[0]);
         const month = parseInt(date.split("-")[1]);
         const day = parseInt(date.split("-")[2]);
 
-        for (var i = 0; i < order.length; i++) {
+        for (let i = 0; i < order.length; i++) {
             orderYear = parseInt(moment(order[i].createdAt).format('YYYY'));
             orderMonth = parseInt(moment(order[i].createdAt).format('M'));
             orderDay = parseInt(moment(order[i].createdAt).format('D'));
@@ -148,8 +153,8 @@ exports.filterProductByDate = async (req, res) => {
 
             if (year === orderYear && month === orderMonth && day === orderDay) {
                 totalOrders = totalOrders + 1
-
-                const purchase = await Purchase.findById({ _id: order[i].purchaseId })
+                console.log(orderYear,orderDay, orderMonth)
+                const purchase = await Purchase.findById({_id: order[i].purchaseId})
                 totalIncome = totalIncome + purchase.product.price
             }
         }

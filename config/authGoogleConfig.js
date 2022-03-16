@@ -22,7 +22,7 @@ const strategy = new GoogleStrategy({
             spentAmount: 0,
             currentAmount: 0,
             totalOrder: 0,
-            userId: user._id
+            userId: user?._id
         });
         user.wallet = wallet._id
         user.userIdNo = 100 + userLength
