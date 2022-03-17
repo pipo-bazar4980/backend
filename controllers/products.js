@@ -2,17 +2,17 @@ const Products = require('../models/Products')
 const ErrorResponse = require("../utils/errorResponse")
 const _ = require('lodash');
 const User = require('../models/Auth')
-const { Order } = require('../models/Order');
+const {Order} = require('../models/Order');
 var isodate = require("isodate");
-const moment = require('moment')
-const { validate } = require('../models/Products')
-const { Purchase } = require('../models/Purchase');
+const moment = require('moment-timezone');
+const {validate} = require('../models/Products')
+const {Purchase} = require('../models/Purchase');
 //create new product Item
 
 exports.create = (req, res) => {
-    const { error } = validate(req.body);
+    const {error} = validate(req.body);
     if (error) return res.status(400).send(error.details[0].message)
-    const { gameName, categoryName, backUpLink } = req.body;
+    const {gameName, categoryName, backUpLink} = req.body;
 
     if (!req.body.topUp) {
         return res.status(500).send('Please add product package')
@@ -23,9 +23,7 @@ exports.create = (req, res) => {
         categoryName,
         backUpLink,
         topUp: JSON.parse(req.body.topUp),
-
     })
-
 
     if (req.file) {
         product.images = `media/img/${req.file.filename}`
@@ -52,23 +50,23 @@ exports.findOne = (req, res) => {
         Products.findById(productId)
             .then(data => {
                 if (!data) {
-                    res.status(404).send({ message: "Not found food with id " + productId })
+                    res.status(404).send({message: "Not found food with id " + productId})
                 } else {
                     res.send(data)
                 }
             })
             .catch(err => {
-                res.status(500).send({ message: "Error retrieving user with id " + productId })
+                res.status(500).send({message: "Error retrieving user with id " + productId})
             })
     }
 }
 // retrieve and return a single product item
 exports.findAll = (req, res) => {
-    Products.find({ disabled: false })
+    Products.find({disabled: false})
         .then(menu => {
             res.send(menu)
         }).catch(err => {
-        res.status(500).send({ message: err.message || "Error Occurred while retrieving user information" })
+        res.status(500).send({message: err.message || "Error Occurred while retrieving user information"})
     })
 }
 
@@ -113,54 +111,41 @@ exports.updateImage = async (req, res) => {
 // Delete a food with specified product id in the request
 exports.remove = (req, res) => {
     const productId = req.params._id
-    Products.updateOne({ _id: productId }, { disabled: true })
+    Products.updateOne({_id: productId}, {disabled: true})
         .then(data => {
             if (!data) {
-                res.status(404).send({ message: `Cannot Update user with ${productId}. Maybe user not found!` })
+                res.status(404).send({message: `Cannot Update user with ${productId}. Maybe user not found!`})
             } else {
                 res.send(data)
             }
         })
         .catch(err => {
-            res.status(500).send({ message: "Error Update user information" })
+            res.status(500).send({message: "Error Update user information"})
         })
 }
 
 
 exports.filterProductByDate = async (req, res) => {
 
-    const order = await Order.find({ isComplete: true })
-    // console.log(order)
-    console.log(req.body)
+    const order = await Order.find({isComplete: true})
 
     let totalOrders = 0;
     let totalIncome = 0;
 
-    let orderYear;
-    let orderMonth;
-    let orderDay;
     if (req.body.date) {
         const {date} = req.body;
-        const year = parseInt(date.split("-")[0]);
-        const month = parseInt(date.split("-")[1]);
-        const day = parseInt(date.split("-")[2]);
 
-        for (let i = 0; i < order.length; i++) {
-            orderYear = parseInt(moment(order[i].createdAt).format('YYYY'));
-            orderMonth = parseInt(moment(order[i].createdAt).format('M'));
-            orderDay = parseInt(moment(order[i].createdAt).format('D'));
+        let dateStartTime = moment(date).startOf('day').toDate().getTime()
+        let dateEndTime = moment(date).endOf('day').toDate().getTime()
 
-
-            if (year === orderYear && month === orderMonth && day === orderDay) {
+        for (let item of order) {
+            if (item?.orderCreationTime >= dateStartTime && item?.orderCreationTime <= dateEndTime) {
                 totalOrders = totalOrders + 1
-                console.log(orderYear,orderDay, orderMonth)
-                const purchase = await Purchase.findById({_id: order[i].purchaseId})
+                const purchase = await Purchase.findById({_id: item.purchaseId})
                 totalIncome = totalIncome + purchase.product.price
             }
         }
     }
-
-
     const count = {
         totalOrders,
         totalIncome,
@@ -171,8 +156,8 @@ exports.filterProductByDate = async (req, res) => {
 
 exports.filterAdminProduct = async (req, res) => {
     let i;
-    let user = await User.findOne({ _id: req.params.id });
-    let product = await Products.find({ disabled: false })
+    let user = await User.findOne({_id: req.params.id});
+    let product = await Products.find({disabled: false})
 
     let productArray = [];
 
@@ -189,7 +174,7 @@ exports.filterAdminProduct = async (req, res) => {
     let data = []
 
     for (i = 0; i < filteredData.length; i++) {
-        let productData = await Products.findOne({ _id: filteredData[i]._id })
+        let productData = await Products.findOne({_id: filteredData[i]._id})
         data.push(productData)
     }
 
@@ -203,7 +188,7 @@ exports.deleteTopUp = async (req, res) => {
 
     if (product) {
         let topUpId = req.params.topUpId
-        let index=null;
+        let index = null;
         let topUpArray = product.topUp;
 
         for (let i = 0; i < topUpArray.length; i++) {
@@ -212,9 +197,9 @@ exports.deleteTopUp = async (req, res) => {
             }
         }
 
-        if (index!=null) {
+        if (index != null) {
             topUpArray.splice(index, 1);
-            await Products.updateOne({ _id: productId }, { topUp: topUpArray });
+            await Products.updateOne({_id: productId}, {topUp: topUpArray});
             const data = await Products.findById(productId)
             const update = data.topUp
             res.status(200).send(update)
@@ -231,8 +216,8 @@ exports.updateTopUp = async (req, res) => {
     const product = await Products.findById(productId);
 
     if (product) {
-        let { topUpId } = req.body
-        let index=null;
+        let {topUpId} = req.body
+        let index = null;
         let topUpArray = product.topUp;
         for (let i = 0; i < topUpArray.length; i++) {
             if (topUpArray[i]._id.equals(topUpId)) {
@@ -241,7 +226,7 @@ exports.updateTopUp = async (req, res) => {
             }
         }
 
-        if (index!=null) {
+        if (index != null) {
 
             if (req.body.option) {
                 topUpArray[index].option = req.body.option
@@ -253,7 +238,7 @@ exports.updateTopUp = async (req, res) => {
                 topUpArray[index].stock = req.body.stock
             }
             //console.log(topUpArray)
-            await Products.updateOne({ _id: productId }, { topUp: topUpArray });
+            await Products.updateOne({_id: productId}, {topUp: topUpArray});
             const data = await Products.findById(productId)
             const update = data.topUp
             res.status(200).send(update)
@@ -280,7 +265,7 @@ exports.createTopUp = async (req, res) => {
                 "stock": req.body.stock
             }
             topUpArray.push(data)
-            await Products.updateOne({ _id: productId }, { topUp: topUpArray });
+            await Products.updateOne({_id: productId}, {topUp: topUpArray});
             const d = await Products.findById(productId);
             const response = d.topUp
             res.status(200).send(response)

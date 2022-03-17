@@ -51,7 +51,6 @@ exports.login = async (req, res, next) => {
 
     const { email, password } = req.body;
 
-    console.log(email, password)
 
     // Check if email and password is provided
     if (!email || !password) {
@@ -166,7 +165,6 @@ exports.resetPassword = async (req, res, next) => {
 
 const sendToken = (user, statusCode, res) => {
     const exp = moment().add(process.env.JWT_EXPIRE,'days').unix()
-    console.log(exp)
     const token = user.getSignedJwtToken(exp);
     const { password, ...info } = user._doc;
 

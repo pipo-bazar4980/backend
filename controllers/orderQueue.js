@@ -75,7 +75,6 @@ exports.orderQueue = async (req, res, next) => {
         }
     }
 
-    console.log('handleOrder', handleOrder)
 
 }
 

@@ -5,7 +5,7 @@ const { orderQueue } = require('../controllers/orderQueue')
 const Products = require('../models/Products')
 const { Purchase } = require('../models/Purchase');
 const { Notification } = require('../models/Notifictions');
-
+const  moment = require('moment-timezone');
 
 module.exports.createNewOrder = async (req, res) => {
     const orderCount = await Order.find()
@@ -19,7 +19,7 @@ module.exports.createNewOrder = async (req, res) => {
     const { userId } = req.body
     const order = new Order(_.pick(req.body, ['userId', 'walletId', 'purchaseId', 'productId', 'rechargeId', 'paymentComplete']));
     order.orderId = 1001 + orderLength
-
+    order.orderCreationTime=moment().tz('Asia/Dhaka').unix() * 1000;
     const result = await order.save();
 
     orderQueue()
@@ -72,11 +72,12 @@ module.exports.updateOrderStatus = async (req, res) => {
     const orderId = req.params.id;
     let findOrder=await Order.findById(orderId)
 
+    console.log("moment().tz('Asia/Dhaka').unix() * 1000",moment().tz('Asia/Dhaka').unix() * 100)
     if (req.body.isComplete===true) {
         if(findOrder.isComplete===false){
             const { isComplete, paymentComplete } = req.body;
-            await Order.updateOne({ _id: orderId }, { isComplete: isComplete, paymentComplete: paymentComplete });
-    
+            await Order.updateOne({ _id: orderId }, { isComplete: isComplete, paymentComplete: paymentComplete,orderConfirmationTime:moment().tz('Asia/Dhaka').unix() * 1000 });
+
             let userId = req.body.userId
             const findWallet = await Wallet.find({ userId: userId })
             await Wallet.updateOne({ userId: userId }, { totalOrder: findWallet[0].totalOrder + 1 })
@@ -84,7 +85,7 @@ module.exports.updateOrderStatus = async (req, res) => {
         else{
             return res.send('marked')
         }
-        
+
     }
     if (req.body.reject===true) {
         if(findOrder.reject===false){
@@ -94,7 +95,7 @@ module.exports.updateOrderStatus = async (req, res) => {
         else{
             return res.send('marked')
         }
-        
+
     }
     if (req.body.reject === false) {
         if(findOrder.reject===true){
@@ -113,7 +114,7 @@ module.exports.markAllComplete = async (req, res) => {
     for (let i = 0; i < req.body.length; i++) {
         for (let j = 0; j < order.length; j++) {
             if (order[j]._id.equals(req.body[i])) {
-                await Order.updateOne({ _id: order[j]._id }, { isComplete: true });
+                await Order.updateOne({ _id: order[j]._id }, { isComplete: true,orderConfirmationTime:moment().tz('Asia/Dhaka').unix() * 1000 });
                 const findWallet = await Wallet.find({ userId: order[j].userId })
                 await Wallet.updateOne({ userId: order[j].userId }, { totalOrder: findWallet[0].totalOrder + 1 })
 

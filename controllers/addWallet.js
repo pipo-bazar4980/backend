@@ -240,7 +240,6 @@ module.exports.editBalance = async (req, res) => {
 }
 
 module.exports.markAllPurchaseComplete = async (req, res) => {
-    console.log("req", req.body)
     let queryArr = [{_id: {$in: req.body}}];
     await AddWallet.updateMany({$and: [...queryArr]}, {isComplete: true})
     let findTransactions = await AddWallet.find({$and: [...queryArr]}, {

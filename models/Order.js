@@ -37,6 +37,13 @@ module.exports.Order = model('Order', Schema({
         type: Boolean,
         default: false
     },
+    orderConfirmationTime:{
+        type:Number,
+        default: 0
+    },
+    orderCreationTime:{
+        type:Number
+    },
     reject: {
         type: Boolean,
         default: false
